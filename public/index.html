@@ -847,7 +847,6 @@ function celebrateBear() {
     isPlaying = false;
     document.getElementById("play-icon").textContent = "▶";
   } else {
-    /* videoPlayer.play(); */
     videoPlayer.play().catch((err) => {
   console.error('Video failed to play:', err);
 });
@@ -996,7 +995,6 @@ function playSongFile(filePath, title, emoji) {
 
 
   videoPlayer.src = filePath;
-  /* videoPlayer.play(); */
   videoPlayer.play().catch((err) => {
   console.error('Video failed to play:', err);
 });
@@ -1017,7 +1015,6 @@ function playSongFile(filePath, title, emoji) {
 
 // override video controls to use audio
 function startVideo() {
-  /* videoPlayer.play(); */
   videoPlayer.play().catch((err) => {
   console.error('Video failed to play:', err);
 });
@@ -1027,7 +1024,6 @@ function startVideo() {
 }
 
 function pauseVideo() {
-  /* videoPlayer.play(); */
   videoPlayer.play().catch((err) => {
   console.error('Video failed to play:', err);
 });
