@@ -847,7 +847,11 @@ function celebrateBear() {
     isPlaying = false;
     document.getElementById("play-icon").textContent = "▶";
   } else {
-    videoPlayer.play();
+    /* videoPlayer.play(); */
+    videoPlayer.play().catch((err) => {
+  console.error('Video failed to play:', err);
+});
+
     isPlaying = true;
     document.getElementById("play-icon").textContent = "⏸";
   }
@@ -992,7 +996,11 @@ function playSongFile(filePath, title, emoji) {
 
 
   videoPlayer.src = filePath;
-  videoPlayer.play();
+  /* videoPlayer.play(); */
+  videoPlayer.play().catch((err) => {
+  console.error('Video failed to play:', err);
+});
+
 
   isPlaying = true;
   document.getElementById("play-icon").textContent = "⏸";
@@ -1009,13 +1017,21 @@ function playSongFile(filePath, title, emoji) {
 
 // override video controls to use audio
 function startVideo() {
-  videoPlayer.play();
+  /* videoPlayer.play(); */
+  videoPlayer.play().catch((err) => {
+  console.error('Video failed to play:', err);
+});
+
   isPlaying = true;
   document.getElementById("play-icon").textContent = "⏸";
 }
 
 function pauseVideo() {
-  videoPlayer.play();
+  /* videoPlayer.play(); */
+  videoPlayer.play().catch((err) => {
+  console.error('Video failed to play:', err);
+});
+
   isPlaying = false;
   document.getElementById("play-icon").textContent = "▶";
 }
@@ -1073,32 +1089,32 @@ audioPlayer.loop = false;
   star: {
     icon: '🔤',
     title: 'ABC Dance',
-    file: './music/1.mp3'
+    file: '/music/1.mp3'
   },
   sheep: {
     icon: '🐑',
     title: 'Little Lamb',
-    file: './music/2.mp3'
+    file: '/music/2.mp3'
   },
   rain: {
     icon: '🌧️',
     title: 'Rain Drops',
-    file: './music/3.mp3'
+    file: '/music/3.mp3'
   },
   frog: {
     icon: '🐸',
     title: 'Froggy Song',
-    file: './music/4.mp3'
+    file: '/music/4.mp3'
   },
   sun: {
     icon: '☀️',
     title: 'Mr. Sun',
-    file: './music/5.mp3'
+    file: '/music/5.mp3'
   },
   moon: {
     icon: '🌙',
     title: 'Moon Night',
-    file: './music/6.mp3'
+    file: '/music/6.mp3'
   }
 };
 
