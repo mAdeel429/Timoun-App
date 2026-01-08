@@ -506,11 +506,19 @@
         <div id="video-display"
   class="w-full h-full relative overflow-hidden">
   
-  <video id="video-player"
+  /* <video id="video-player"
     class="absolute inset-0 w-full h-full object-cover"
     playsinline
     preload="auto">
-  </video>
+  </video> */
+  <video
+  class="absolute inset-0 w-full h-full object-cover"
+  id="video-player"
+  playsinline
+  webkit-playsinline
+  preload="metadata"
+>
+</video>
 
 </div>
 <!-- Play/Pause Button --> <button id="play-pause-btn"
