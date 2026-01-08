@@ -1,0 +1,23 @@
+export const music = [
+  { title: "ABC Dance", icon: "💃", file: "./music/1.mp3" },
+  { title: "ABC Song", icon: "🔤", file: "./music/2.mp3" },
+  { title: "Bingo", icon: "🐶", file: "./music/3.mp3" },
+  { title: "Cool Dad", icon: "😎", file: "./music/4.mp3" },
+  { title: "Cool Kids", icon: "🧒", file: "./music/5.mp3" },
+  { title: "Go Bananas", icon: "🍌", file: "./music/6.mp3" },
+  { title: "Little Bunnies", icon: "🐰", file: "./music/7.mp3" },
+  { title: "I Love My Life", icon: "❤️", file: "./music/8.mp3" },
+  { title: "Bubble Gum", icon: "🫧", file: "./music/9.mp3" },
+  { title: "Luther", icon: "🎤", file: "./music/10.mp3" },
+  { title: "Mutt", icon: "🐶", file: "./music/11.mp3" },
+  { title: "Oops", icon: "😅", file: "./music/12.mp3" },
+  { title: "Open Shut Thumb", icon: "✋", file: "./music/13.mp3" },
+  { title: "Rain Go Away", icon: "🌧️", file: "./music/14.mp3" },
+  { title: "School Is Out", icon: "🎒", file: "./music/15.mp3" },
+  { title: "Super Siah", icon: "🦸‍♂️", file: "./music/16.mp3" },
+  { title: "That Is A No No", icon: "🙅", file: "./music/17.mp3" },
+  { title: "TV Off", icon: "📺", file: "./music/19.mp3" },
+  { title: "Twinkle Twinkle", icon: "🌟", file: "./music/20.mp3" },
+  { title: "Veggie Dance", icon: "🥕", file: "./music/21.mp3" },
+  { title: "What I Do", icon: "🤸", file: "./music/22.mp3" }
+];

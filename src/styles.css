@@ -1,0 +1,56 @@
+body {
+  box-sizing: border-box;
+  font-family: 'Nunito', sans-serif;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+* {
+  -webkit-touch-callout: none;
+}
+
+/* ---- ALL ORIGINAL ANIMATIONS ---- */
+@keyframes float {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes pulse-soft {0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes bounce-in {0%{transform:scale(.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(.9)}100%{transform:scale(1);opacity:1}}
+@keyframes wiggle {0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+@keyframes shake {0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+@keyframes confetti-fall {0%{transform:translateY(-100%) rotate(0);opacity:1}100%{transform:translateY(100%) rotate(720deg);opacity:0}}
+@keyframes sparkle {0%,100%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}}
+@keyframes music-note-float {0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-60px) rotate(15deg);opacity:0}}
+@keyframes glow-pulse {0%,100%{box-shadow:0 0 20px rgba(255,182,193,.4)}50%{box-shadow:0 0 40px rgba(255,182,193,.8)}}
+@keyframes bar-dance {0%,100%{height:20%}50%{height:100%}}
+
+.float-animation{animation:float 3s ease-in-out infinite}
+.pulse-animation{animation:pulse-soft 2s ease-in-out infinite}
+.bounce-in{animation:bounce-in .6s ease-out forwards}
+.wiggle{animation:wiggle .5s ease-in-out}
+.shake{animation:shake .5s ease-in-out}
+.glow-pulse{animation:glow-pulse 2s ease-in-out infinite}
+
+.confetti-piece{position:absolute;width:12px;height:12px;border-radius:50%;animation:confetti-fall 2s ease-out forwards}
+.sparkle{position:absolute;font-size:24px;animation:sparkle .8s ease-out forwards}
+.music-note{position:absolute;font-size:28px;animation:music-note-float 2s ease-out forwards;pointer-events:none}
+.visualizer-bar{animation:bar-dance .5s ease-in-out infinite}
+
+.tap-feedback:active{transform:scale(.95);transition:.1s}
+.menu-tile{transition:.2s}
+.menu-tile:active{transform:scale(.92)}
+.video-card:active,.song-card:active{transform:scale(.96)}
+
+.screen{position:absolute;inset:0;transition:.4s}
+.screen-hidden{opacity:0;pointer-events:none;transform:scale(.95)}
+
+.gradient-warm{background:linear-gradient(145deg,#FFF5E6 0%,#FFE4D6 50%,#FFDAB9 100%)}
+.gradient-sky{background:linear-gradient(145deg,#E6F3FF 0%,#D4ECFF 50%,#B8E0FF 100%)}
+.gradient-mint{background:linear-gradient(145deg,#E8FFF0 0%,#D4F5E0 50%,#B8EED0 100%)}
+.gradient-lavender{background:linear-gradient(145deg,#F5E6FF 0%,#ECD9FF 50%,#E0CCFF 100%)}
+
+.safe-area{
+ padding-top:env(safe-area-inset-top);
+ padding-bottom:env(safe-area-inset-bottom);
+ padding-left:env(safe-area-inset-left);
+ padding-right:env(safe-area-inset-right);
+}
