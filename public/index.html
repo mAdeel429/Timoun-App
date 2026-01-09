@@ -373,7 +373,7 @@
 </head>
 
 <body class="h-full overflow-auto gradient-warm safe-area">
-  <div id="root" class="h-full w-full relative overflow-hidden"><!-- Login Screen -->
+  <div id="app" class="h-full w-full relative overflow-hidden"><!-- Login Screen -->
     <div id="login-screen" class="screen gradient-warm flex flex-col items-center justify-center p-6">
       <div class="text-center mb-10 relative">
         <div id="login-bear" class="mb-6 float-animation pulse-animation">
@@ -589,6 +589,77 @@
     </div>
   </div>
   <script>
+
+    if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then(reg => {
+          console.log("Service Worker registered:", reg.scope);
+        })
+        .catch(err => {
+          console.error("Service Worker registration failed:", err);
+        });
+    });
+  }
+
+  const DB_NAME = "timoun-media-db";
+const STORE_NAME = "media-store";
+
+function openMediaDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(STORE_NAME);
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject("DB open failed");
+  });
+}
+
+async function saveMedia(key, blob) {
+  const db = await openMediaDB();
+  const tx = db.transaction(STORE_NAME, "readwrite");
+  tx.objectStore(STORE_NAME).put(blob, key);
+}
+
+async function getMedia(key) {
+  const db = await openMediaDB();
+
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const req = tx.objectStore(STORE_NAME).get(key);
+
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => resolve(null);
+  });
+}
+
+
+async function cacheMediaIfNeeded(url) {
+  const cached = await getMedia(url);
+  if (cached) return;
+
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    await saveMedia(url, blob);
+    console.log("Cached:", url);
+  } catch (e) {
+    console.warn("Cache failed:", url);
+  }
+}
+
+async function getPlayableURL(url) {
+  const cached = await getMedia(url);
+  if (cached) {
+    return URL.createObjectURL(cached);
+  }
+  return url; // online fallback
+}
+
     const defaultConfig = {
       app_title: 'Timoun',
       pin_code: '1234',
@@ -815,13 +886,17 @@ function celebrateBear() {
 
     // Menu navigation
     document.getElementById('watch-btn').addEventListener('click', () => {
-      playClickSound();
-      showScreen('watch-screen');
-    });
+  playClickSound();
+  songs.forEach(s => cacheMediaIfNeeded(s.file));
+  showScreen('watch-screen');
+});
+
     document.getElementById('tunes-btn').addEventListener('click', () => {
-      playClickSound();
-      showScreen('tunes-screen');
-    });
+  playClickSound();
+  music.forEach(m => cacheMediaIfNeeded(m.file));
+  showScreen('tunes-screen');
+});
+
     document.getElementById('exit-btn').addEventListener('click', () => {
       playClickSound();
       showScreen('login-screen');
@@ -858,27 +933,28 @@ document.getElementById("player-back-btn").addEventListener("click", () => {
 });
 
 const music = [
-  { key: 'abc', title: 'ABC Dance', icon: '💃', file: '/music/1.mp3' },
-  { key: 'abcSong', title: 'ABC Song', icon: '🔤', file: '/music/2.mp3' },
-  { key: 'bingo', title: 'Bingo', icon: '🐶', file: '/music/3.mp3' },
-  { key: 'dad', title: 'Cool Dad', icon: '😎', file: '/music/4.mp3' },
-  { key: 'kids', title: 'Cool Kids', icon: '🧒', file: '/music/5.mp3' },
-  { key: 'Bananas', title: 'Go Bananas', icon: '🍌', file: '/music/6.mp3' },
-  { key: 'bunnies', title: 'Little bunnies', icon: '🐰', file: '/music/7.mp3' },
-  { key: 'life', title: 'I Love My Life', icon: '❤️', file: '/music/8.mp3' },
-  { key: 'Bubble', title: 'Bubble Gum', icon: '🫧', file: '/music/9.mp3' },
-  { key: 'Luther', title: 'Luther', icon: '🎤', file: '/music/10.mp3' },
-  { key: 'Mutt', title: 'Mutt', icon: '🐶', file: '/music/11.mp3' },
-  { key: 'oops', title: 'Oops', icon: '😅', file: '/music/12.mp3' },
-  { key: 'ShutThum', title: 'Open, Shut Thum', icon: '✋', file: '/music/13.mp3' },
-  { key: 'rain', title: 'Rain Go Away', icon: '🌧️', file: '/music/14.mp3' },
-  { key: 'schoolOut', title: 'School Is Out', icon: '🎒', file: '/music/15.mp3' },
-  { key: 'SuperSiah', title: 'Super Siah', icon: '🦸‍♂️', file: '/music/16.mp3' },
-  { key: 'NoNo', title: 'Thatis A NoNo', icon: '🙅', file: '/music/17.mp3' },
-  { key: 'tv', title: 'TV Off', icon: '📺', file: '/music/19.mp3' },
-  { key: 'Twinkle', title: 'Twinkle, Twinkle', icon: '🌟', file: '/music/20.mp3' },
-  { key: 'dance', title: 'Veggie Dance', icon: '🥕', file: '/music/21.mp3' },
-  { key: 'do', title: 'What I do', icon: '🤸', file: '/music/22.mp3' }
+  { key: 'abc', title: 'ABC Dance', icon: '💃', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943533/1_lenwmh.mp3' },
+  { key: 'abcSong', title: 'ABC Song', icon: '🔤', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943530/2_khirtk.mp3' },
+  { key: 'bingo', title: 'Bingo', icon: '🐶', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943545/3_takiho.mp3' },
+  { key: 'dad', title: 'Cool Dad', icon: '😎', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943522/4_olaxwq.mp3' },
+  { key: 'kids', title: 'Cool Kids', icon: '🧒', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943532/5_riwz8j.mp3' },
+  { key: 'Bananas', title: 'Go Bananas', icon: '🍌', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943575/6_u6xkuv.mp3' },
+  { key: 'bunnies', title: 'Little bunnies', icon: '🐰', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943573/7_aaploh.mp3' },
+  { key: 'life', title: 'I Love My Life', icon: '❤️', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943567/8_xre8f5.mp3' },
+  { key: 'Bubble', title: 'Bubble Gum', icon: '🫧', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943581/9_gamzfu.mp3' },
+  { key: 'Luther', title: 'Luther', icon: '🎤', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943612/10_khx5ls.mp3' },
+  { key: 'Mutt', title: 'Mutt', icon: '🐶', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943639/11_amo4ch.mp3' },
+  { key: 'oops', title: 'Oops', icon: '😅', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943593/12_ahpajd.mp3' },
+  { key: 'ShutThum', title: 'Open, Shut Thum', icon: '✋', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943593/13_lfhpbj.mp3' },
+  { key: 'rain', title: 'Rain Go Away', icon: '🌧️', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943645/14_rlxdhm.mp3' },
+  { key: 'schoolOut', title: 'School Is Out', icon: '🎒', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943608/15_ndcqbl.mp3' },
+  { key: 'SuperSiah', title: 'Super Siah', icon: '🦸‍♂️', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943632/16_tti17k.mp3' },
+  { key: 'NoNo', title: 'Thatis A NoNo', icon: '🙅', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943631/17_lhs5nc.mp3' },
+  { key: 'tv', title: 'TV Off', icon: '📺', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943682/19_xhegb9.mp3' },
+  { key: 'Twinkle', title: 'Twinkle, Twinkle', icon: '🌟', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943668/20_z696eu.mp3' },
+  { key: 'dance', title: 'Veggie Dance', icon: '🥕', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943682/21_bmqslg.mp3' },
+  { key: 'wheels', title: 'The Wheels On The Bus', icon: '🚌', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943654/18_ufmugp.mp3' },
+  { key: 'do', title: 'What I do', icon: '🤸', file: 'https://res.cloudinary.com/dksratuch/video/upload/v1767943672/22_mmicxw.mp3' }
 
 ];
 
@@ -906,19 +982,19 @@ music.forEach((song, index) => {
 
 const songs = [
   { title: "Song 1", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899189/1_cj7z4q.mp4", emoji: "🎵" },
-  { title: "Song 2", file: "/videos/2.mp4", emoji: "🎶" },
-  { title: "Song 3", file: "/videos/3.mp4", emoji: "🐻" },
-  { title: "Song 4", file: "/videos/4.mp4", emoji: "⭐" },
-  { title: "Song 5", file: "/videos/5.mp4", emoji: "🌈" },
-  { title: "Song 6", file: "/videos/6.mp4", emoji: "🎈" },
-  { title: "Song 7", file: "/videos/7.mp4", emoji: "🐸" },
-  { title: "Song 8", file: "/videos/8.mp4", emoji: "🐥" },
-  { title: "Song 9", file: "/videos/9.mp4", emoji: "🐼" },
-  { title: "Song 10", file: "/videos/10.mp4", emoji: "🦋" },
-  { title: "Song 11", file: "/videos/11.mp4", emoji: "🐰" },
-  { title: "Song 12", file: "/videos/12.mp4", emoji: "🌙" },
-  { title: "Song 14", file: "/videos/14.mp4", emoji: "🦆" },
-  { title: "Song 15", file: "/videos/15.mp4", emoji: "🐠" }
+  { title: "Song 2", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899288/2_go1kfc.mp4", emoji: "🎶" },
+  { title: "Song 3", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899271/3_uvbayv.mp4", emoji: "🐻" },
+  { title: "Song 4", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899913/4_ujessu.mp4", emoji: "⭐" },
+  { title: "Song 5", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899392/5_wxum8p.mp4", emoji: "🌈" },
+  { title: "Song 6", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899374/6_urahe7.mp4", emoji: "🎈" },
+  { title: "Song 7", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899612/7_nb6dxk.mp4", emoji: "🐸" },
+  { title: "Song 8", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899606/8_q6cbgx.mp4", emoji: "🐥" },
+  { title: "Song 9", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899181/9_i2b5s7.mp4", emoji: "🐼" },
+  { title: "Song 10", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899470/10_qvjeql.mp4", emoji: "🦋" },
+  { title: "Song 11", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767900123/11_vg1pix.mp4", emoji: "🐰" },
+  { title: "Song 12", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899498/12_wix6jb.mp4", emoji: "🌙" },
+  /* { title: "Song 14", file: "https://firebasestorage.googleapis.com/v0/b/ecommerce-74cda.appspot.com/o/14.mp4?alt=media&token=009cff66-9ae0-4c36-bbfe-de046f342bb1", emoji: "🦆" }, */
+  { title: "Song 15", file: "https://res.cloudinary.com/dksratuch/video/upload/v1767899685/15_i49v6g.mp4", emoji: "🐠" }
 ];
 
 // ====== CREATE CARDS ======
@@ -943,7 +1019,7 @@ songs.forEach((song, index) => {
 
 let currentMusicIndex = null;
 
-function playMusic(index) {
+async function playMusic(index) {
   const song = music[index];
   if (!song) return;
 
@@ -954,17 +1030,23 @@ function playMusic(index) {
   document.getElementById('playing-icon').textContent = song.icon;
   document.getElementById('playing-title').textContent = song.title;
 
-  // AUDIO
-  audioPlayer.src = song.file;
-  audioPlayer.currentTime = 0;
-  audioPlayer.play();
+  try {
+    const playableURL = await getPlayableURL(song.file);
 
-  musicPlaying = true;
-  document.getElementById('music-play-icon').textContent = '⏸';
+    audioPlayer.src = playableURL;
+    audioPlayer.currentTime = 0;
+    await audioPlayer.play();
 
-  startMusicNotes();
+    musicPlaying = true;
+    document.getElementById('music-play-icon').textContent = '⏸';
 
-  audioPlayer.onended = () => playNextMusic();
+    startMusicNotes();
+
+    audioPlayer.onended = () => playNextMusic();
+
+  } catch (err) {
+    console.error("Audio play failed:", err);
+  }
 }
 
 function playNextMusic() {
@@ -982,17 +1064,25 @@ function playPrevMusic() {
 
 
 // ====== AUDIO PLAYER ======
-let audioElement = new Audio();
+/* let audioElement = new Audio(); */
 
-function playSongFile(filePath, title, emoji) {
+async function playSongFile(filePath, title, emoji) {
 
   showScreen("player-screen");
 
 
-  videoPlayer.src = filePath;
+  /* videoPlayer.src = filePath;
   videoPlayer.play().catch((err) => {
   console.error('Video failed to play:', err);
+}); */
+
+const playableURL = await getPlayableURL(filePath);
+videoPlayer.src = playableURL;
+
+videoPlayer.play().catch((err) => {
+  console.error('Video failed to play:', err);
 });
+
 
 
   isPlaying = true;
@@ -1019,13 +1109,11 @@ function startVideo() {
 }
 
 function pauseVideo() {
-  videoPlayer.play().catch((err) => {
-  console.error('Video failed to play:', err);
-});
-
+  videoPlayer.pause();
   isPlaying = false;
   document.getElementById("play-icon").textContent = "▶";
 }
+
 
 function stopVideo() {
   videoPlayer.pause();
